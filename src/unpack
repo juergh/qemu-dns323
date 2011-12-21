@@ -1,0 +1,125 @@
+#!/usr/bin/python
+
+import struct
+import sys
+
+def calc_checksum(ifile):
+    """
+    Calculate the XOR checksum of a file.
+    """
+    checksum = 0
+    i = open(ifile, 'rb')
+    while True:
+        try:
+            data = i.read(4)
+            checksum ^= struct.unpack('I', data)[0]
+        except:
+            break
+    i.close()
+    return checksum
+
+def extract_image(ifile, ofile, offset, length):
+    """
+    Extract an image from a file.
+    """
+    print "Extracting %s from %s" % (ofile, ifile)
+    try:
+        i = open(ifile, 'rb')
+        o = open(ofile, 'wb')
+        i.seek(offset)
+        if length:
+            o.write(i.read(length))
+        else:
+            o.write(i.read())
+        i.close()
+        o.close()
+    except:
+        print "Failed to extract image"
+        sys.exit()
+
+def extract_header(ifile):
+    """
+    Extract the custom firmware header from a file.
+    typedef struct _CONTROL_HEADER_
+    {
+       u32 offset_1;
+       u32 len_1;
+       u32 offset_2;
+       u32 len_2;
+       u32 offset_3;
+       u32 len_3;
+       u32 checksum_1;
+       u32 checksum_2;
+       u32 checksum_3;
+       u8 magic_num[12];
+       u8 product_id;
+       u8 custom_id;
+       u8 model_id;
+       u8 sub_id;
+       u8 NewVersion;
+       u8 reserved[7];       //all structure is 64 bytes
+       u32 Next_offset;
+    }*CONTROL_HEADER_ID, CONTROL_HEADER; // 64 bytes
+    """
+    print "Extracting header from %s" % ifile
+    try:
+        i = open(ifile, 'rb')
+        header = struct.unpack('I' * 9, i.read(36)) 
+        header += (i.read(12), )
+        header += struct.unpack('B' * 12, i.read(12))
+        header += struct.unpack('I', i.read(4))
+        i.close()
+        return header
+    except:
+        print "unable to read header from %s" % ifile
+        sys.exit()
+
+def main():        
+    firmware = sys.argv[1]
+
+    # Extract the firmware header
+    header = extract_header(firmware)
+    print """
+Kernel offset:     %d
+Kernel size:       %d
+Ramdisk offset:    %d
+Ramdisk size:      %d
+Defaults offset:   %d
+Defaults size:     %d
+Kernel checksum:   %08x
+Ramdisk checksum:  %08x
+Defaults checksum: %08x
+Magic number:      %s
+Product id:        %d
+Custom id:         %d
+Model id:          %d
+Sub id:            %d
+New version:       %d
+Reserved:          %02x%02x%02x%02x%02x%02x%02x
+Next offset:       %08x
+""" % header
+
+    # Extract the kernel and verify the ckecksum
+    extract_image(firmware, 'uImage', header[0], header[1])
+    crc = calc_checksum('uImage')
+    if crc != header[6]:
+        print "Warning: Checksum mismatch: %08x" % crc
+
+    # Extract the ramdisk and verify the checksum
+    extract_image(firmware, 'uRamdisk', header[2], header[3])
+    crc = calc_checksum('uRamdisk')
+    if crc != header[7]:
+        print "Warning: Checksum mismatch: %08x" % crc
+
+    # Strip the u-boot header from the ramdisk
+    extract_image('uRamdisk', 'ramdisk_el.gz', 64, None)
+
+    # Extract the defaults.tar.gz tarball
+    extract_image(firmware, 'default.tar.gz', header[4], header[5])
+    crc = calc_checksum('default.tar.gz')
+    if crc != header[8]:
+        print "Warning: Checksum mismatch: %08x" % crc
+
+if __name__ == '__main__':
+    main()
+

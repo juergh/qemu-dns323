@@ -1,0 +1,76 @@
+diff -uprN -X linux-2.6.14-vanilla/Documentation/dontdiff qemu-0.15.0-vanilla/hw/versatilepb.c qemu-0.15.0-dns323/hw/versatilepb.c
+--- qemu-0.15.0-vanilla/hw/versatilepb.c	2011-08-08 20:28:42.000000000 +0200
++++ qemu-0.15.0-dns323/hw/versatilepb.c	2011-09-19 09:04:46.109712314 +0200
+@@ -17,6 +17,11 @@
+ #include "usb-ohci.h"
+ #include "boards.h"
+ #include "blockdev.h"
++#include "flash.h"
++
++#define VPB_FLASH_ADDR     0x34000000
++#define VPB_FLASH_SIZE_MAX (64 * 1024 * 1024)
++#define VPB_FLASH_SECT_LEN (1024)
+ 
+ /* Primary interrupt controller.  */
+ 
+@@ -185,6 +190,8 @@ static void versatile_init(ram_addr_t ra
+     NICInfo *nd;
+     int n;
+     int done_smc = 0;
++    DriveInfo *dinfo;
++    unsigned long flash_size;
+ 
+     if (!cpu_model)
+         cpu_model = "arm926";
+@@ -258,6 +265,35 @@ static void versatile_init(ram_addr_t ra
+     /* Add PL031 Real Time Clock. */
+     sysbus_create_simple("pl031", 0x101e8000, pic[10]);
+ 
++    /* Register flash */
++    dinfo = drive_get(IF_PFLASH, 0, 0);
++    if (dinfo) {
++        flash_size = bdrv_getlength(dinfo->bdrv);
++        if (flash_size > VPB_FLASH_SIZE_MAX) {
++            fprintf(stderr, "Invalid flash image size. Needs to be less than "
++                    "%d MB.\n", VPB_FLASH_SIZE_MAX >> 20);
++            exit(1);
++        }
++#if 1
++        if (!pflash_cfi01_register(VPB_FLASH_ADDR, qemu_ram_alloc(NULL,
++                                  "versatile.flash,", flash_size),
++                                   dinfo->bdrv, VPB_FLASH_SECT_LEN,
++                                   flash_size / VPB_FLASH_SECT_LEN,
++                                   4, 0, 0, 0, 0, 0)) {
++#else
++        if (!pflash_cfi02_register(VPB_FLASH_ADDR, qemu_ram_alloc(NULL,
++                                  "versatile.flash,", flash_size),
++                                   dinfo->bdrv, VPB_FLASH_SECT_LEN,
++                                   flash_size / VPB_FLASH_SECT_LEN,
++                                   1, 4,
++                                   0x0000, 0x0000, 0x0000, 0x0000,
++                                   0x555, 0x2aa, 0)) {
++#endif
++            fprintf(stderr, "Failed to register flash memory.\n");
++            exit(1);
++        }
++    }
++
+     /* Memory map for Versatile/PB:  */
+     /* 0x10000000 System registers.  */
+     /* 0x10001000 PCI controller config registers.  */
+@@ -293,6 +329,7 @@ static void versatile_init(ram_addr_t ra
+     /*  0x101f2000 UART1.  */
+     /*  0x101f3000 UART2.  */
+     /* 0x101f4000 SSPI.  */
++    /* 0x34000000 Flash.  */
+ 
+     versatile_binfo.ram_size = ram_size;
+     versatile_binfo.kernel_filename = kernel_filename;
+@@ -329,6 +366,7 @@ static QEMUMachine versatilepb_machine =
+     .desc = "ARM Versatile/PB (ARM926EJ-S)",
+     .init = vpb_init,
+     .use_scsi = 1,
++    .no_cdrom = 1, 
+ };
+ 
+ static QEMUMachine versatileab_machine = {
