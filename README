@@ -1,0 +1,68 @@
+Environment to run the DNS-323 firmware in QEMU
+-----------------------------------------------
+
+This repository contains a simple Makefile and QEMU and Linux kernel patches
+that can be used to run the stock DNS-323 firmware in a QEMU environment.
+Obviously, DNS-323 hardware specifics, like the fan and temperature sensors
+and others, won't be emulated and the firmware will spit out errors
+accordingly.
+
+However, it provides a nice playing field for testing custom firmware
+modifications prior to downloading it to the real hardware. It also provides
+access the DNS web GUI.
+
+
+Prerequisits
+------------
+
+You need an ARM cross-compiler to compile the kernel. You can get one from
+https://github.com/juergh/toolchain_arm or use your own.
+
+
+Patches
+-------
+
+The repo contains two patches, one for QEMU to add flash support to the
+versatile_pb emulation and one for the kernel to add squashfs with LZMA support
+and rename the network interface to egiga0 to match the firmware's expectations.
+
+
+Usage
+-----
+
+Assuming you have all the packages and dependencies installed to be able to
+compile QEMU and the kernel. Adjust the TOOLCHAIN variable in the Makefile to
+point to the ARM cross compiler and then just run make:
+
+$ make
+
+which will:
+1) Download the QEMU source, unpack it, apply the patch and compile it.
+2) Download the kernel source, unpack it, apply the patch and compile it.
+3) Download the DNS-323 firmware and extract the ramdisk.
+4) Create an empty flash image, which will get populated by the DNS firmware on
+   first boot.
+5) Create an empty 5G harddisk image and partiton it properly.
+6) Run QEMU with the appropriate arguments.
+
+
+On first boot
+-------------
+
+The first time you boot QEMU, the firmware will detect the empty flash image
+and populate it with the default content. For some reason, initializing the
+harddrive image through the GUI does not work and needs to be done manually.
+Once the firmware is fully booted, log into the console by typing the 'magic'
+number 5784468. On the busybox prompt, run the following commands to initialize
+the harddrive image:
+
+$ diskmgr --DevName=/dev/sda --DevSize=-1 --RaidStatus=0 --DiskMode=normal 
+  --FileSystem=ext2 --Serial1=sda
+$ mkswap /dev/sda1
+$ mke2fs /dev/sda2
+$ mke2fs /dev/sda4
+$ poweroff
+
+Exit QEMU by pressing 'CTRL-A X' and then launch it again by running 'make run'.
+After booting up, connect to the GUI at http://localhost:5080, login with
+'admin' and empty password and check the status of the attached harddrive.
