@@ -3,7 +3,7 @@ QEMU   = qemu-0.15.0
 DNS_FW = dns323_fw_109
 
 CROSS_COMPILE = arm-linux-uclibc-
-TOOLCHAIN = $(PWD)/../toolchain_arm/toolchain_arm/bin
+TOOLCHAIN = $(PWD)/../toolchain_arm/toolchain_arm
 PATH := $(TOOLCHAIN)/bin:$(PATH)
 
 all: world
