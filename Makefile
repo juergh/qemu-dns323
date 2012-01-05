@@ -10,6 +10,17 @@ all: world
 
 world: qemu kernel ramdisk flash hda run
 
+# Mount sda2
+# Offset = 1069286400 = 512 * 2088450 (2088450 == 2nd partition start sector
+# from src/sfdisk.input)
+mount:
+	test -d sda2 || mkdir sda2
+	sudo mount hda.img sda2 -o loop,offset=1069286400
+
+# Unmount sda2
+umount:
+	sudo umount sda2
+
 # Run QEMU
 run:
 	./qemu-system-arm \
