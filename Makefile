@@ -30,6 +30,8 @@ run:
 		-append "root=/dev/ram console=ttyAMA0 mtdparts=phys_mapped_flash:64k(MTD1),64k(MTD2)" \
 		-pflash flash.img \
 		-drive file=hda.img,index=0,if=scsi,serial=00001111 \
+		-redir tcp:5022::22 \
+		-redir tcp:5023::23 \
 		-redir tcp:5080::80 \
 		-initrd ramdisk_el.gz \
 		-kernel zImage
