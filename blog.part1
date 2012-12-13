@@ -1,0 +1,101 @@
+DNS-323 in QEMU – Part 1
+
+The DNS-323 is a nifty little NAS box from D-Link that runs Linux under the covers. There is a vast amount of information available on how to hack, modify, and/or extend the functionality of the box, especially at http://wiki.dns323.info. This post goes a little further and explains how you can run the stock DNS-323 firmware in QEMU. This enables you to test-drive your custom firmware modifications or just simply play around with the box without having to fear that you fubar it :-)
+
+There are some limitations though. QEMU doesn’t emulate all the hardware pieces of the DNS-323 so not everything will be working as expected, especially the low-level components (fan control, temperature reading, buttons, …). However, you’ll get the web interface, access to the Linux shell, support for attached hard disks, support for attached flash (where the firmware and persistent configuration settings reside) and probably more that I haven’t discovered yet.
+
+The environment to download and build all the pieces (except for the ARM cross-compiler) automatically is also available from github: https://github.com/juergh/qemu-dns323.
+
+Requirements
+
+We need – obviously – the firmware of the DNS-323 and specifically the ramdisk that’s part of the firmware. We also need a modified version of QEMU (with added flash support) and a modified version of the Linux kernel 2.6.14 and an ARM cross-compiler to be able to compile the kernel.
+
+Getting all the pieces
+
+Download the DNS-323 firmware and unzip it.
+
+# Download and unzip the firmware
+$ wget ftp://ftp.dlink.com/Multimedia/dns323/Firmware/dns323_fw_109.zip
+$ unzip dns323_fw_109.zip
+
+Get Oleg’s firmware parsing tool, patch it and extract the ramdisk from the firmware binary (see this link for Oleg’s post on the subject).
+
+Important: You only need to apply the second patch if you’re running on a 64-bit machine.
+
+# Download and extract the tool
+$ wget http://hg.leschinsky.in.ua/makeFirmware/archive/tip.tar.bz2
+$ tar xjvf tip.tar.bz2
+
+# First patch: Fix python interpreter
+$ sed -i 's/python2.5/python/' ./makeFirmware-<rev>/parseFirmware.py
+
+# Second patch: Only run this if you're on a 64-bit machine!
+$ sed -i 's/LLLLLLLLL/IIIIIIIII/' ./makeFirmware-<rev>/parseFirmware.py
+
+# Extract the different pieces from the firmware binary
+$ ./makeFirmware-<rev>/parseFirmware.py dns323_fw_109/dns323_fw_109
+
+If all goes well, you should end up with a file named Ramdisk.gz which is the file we’re interested in. Check that it’s a valid gzip archive and then put it aside, we’ll need it later. No, don’t unzip it!
+
+$ file Ramdisk.gz
+Ramdisk.gz: gzip compressed data, was "ramdisk_el", from Unix,
+last modified: Tue Feb  9 12:34:35 2010
+
+Next, get the QEMU source, patch it to add flash support and then configure and compile it. Note that you might have to install some packages if the configure step complains about missing prerequisites. QEMU doesn’t have emulation for the DNS-323, we’re using the VersatilePB emulation which is a pretty generic ARM platform but it’s lacking flash support, hence the patching. Additionally, the patch also removes SCSI CD-ROM support from the VersatilePB emulation. The DNS-323 firmware otherwise gets confused by the CD-ROM and thinks it is a hard disk and treats it accordingly.
+
+# Get the QEMU source and the patch file
+$ wget http://wiki.qemu.org/download/qemu-0.15.0.tar.gz
+$ tar xzvf qemu-0.15.0.tar.gz
+$ wget http://files.blujay.ch/dns-323/qemu-0.15.0-dns323.patch
+
+# Patch, configure and compile QEMU
+$ cd qemu-0.15.0
+$ patch -p1 < ../qemu-0.15.0-dns323.patch
+$ ./configure --target-list=arm-softmmu
+$ make
+
+# Move the QEMU binary to the top-level directory
+$ mv arm-softmmu/qemu-system-arm ..
+$ cd ..
+
+The next step is to get the cross-compiler in preparation for the kernel compilation. The cross-compiler is part of the GPL code that D-Link has to provide to comply with the GPL. Download the archive (it’s fairly big at > 400MB) and extract the toolchain.
+
+# Download the DNS-323 GPL code archive and extract the ARM
+# cross-compiler toolchain
+$ wget ftp://gpl.dlink.com/DNS-323/dns323_GPL_v1.08_12182009.tgz
+$ tar xzvf dns323_GPL_v1.08_12182009.tgz
+$ cd dns323_GPL
+$ tar xzvf dns323_GPL.tgz
+$ cd dns323_GPL
+$ tar xzvf uclibc-toolchain-src-20040609.tgz
+
+# Move the toolchain to the top-level directory
+$ mv uclibc-toolchain-src-20040609/gcc-3.3.x/toolchain_arm/ ../../
+$ cd ../..
+
+Finally, it’s time to download the kernel and patch it. The DNS-323 is running a modified 2.6.12.6 kernel. On top of some heavy D-Link modifications to support the DNS-323 specific hardware, that kernel is unfortunaltly lacking PCI support for the VersatilePB platform which we need in order to be able to attach hard disks in QEMU. PCI support for VersatilePB has been added in 2.6.14 and that’s the kernel that we’ll use for this project. The patch that we’ll download shortly adds squashfs (with LZMA compression) support to the kernel and changes the network interface names from ethX to egigaX to match the DNS-323 firmware expectations. Squashfs is used by the firmware to access some files stored in the flash. The patch file also contains the .config kernel configuration file with all the settings that are required to run the kernel in QEMU.
+
+# Get the kernel source and patch file
+$ wget ftp://ftp.kernel.org/pub/linux/kernel/v2.6/linux-2.6.14.tar.bz2
+$ tar xjvf linux-2.6.14.tar.bz2
+$ wget http://files.blujay.ch/dns-323/linux-2.6.14-dns323.patch
+
+# Set environment variables for the cross-compilation, apply the
+# patch and compile the kernel using the ARM toolchain
+$ export PATH=`pwd`/toolchain_arm/bin:$PATH
+$ export ARCH=arm
+$ export CROSS_COMPILE=arm-linux-uclibc-
+$ cd linux-2.6.14
+$ patch -p1 < ../linux-2.6.14-dns323.patch
+$ make zImage
+
+# Move the kernel to the top-level directory
+$ mv arch/arm/boot/zImage ..
+$ cd ..
+
+Note that kernel.org is down at the moment for maintenance reasons. In the meanwhile, you need to grab the kernel from an alternate mirror site like: ftp://linux-kernel.uio.no/pub/linux/kernel/pub/linux/kernel/v2.6/ (University of Oslo).
+
+At this point we have all the pieces that we need for the next step. We should now have the following files in the top-level directory that we’ll need for the next step: qemu-system-arm, Ramdisk.gz and zImage.
+
+In the second part of this post, we’ll cover how to finally emulate the DNS-323 in QEMU using the bits and pieces that we just gathered.
+

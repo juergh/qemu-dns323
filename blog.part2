@@ -1,0 +1,107 @@
+DNS-323 in QEMU – Part 2
+
+This is the second part of my post that explains how to run the vanilla DNS-323 firmware in QEMU. Be sure you have followed DNS-323 in QEMU – Part 1 and gathered all the required bits and pieces before continuing.
+
+Now it’s time to create the flash image which will hold the configuration settings. Well… It’s not much of an image, just a file full of zeros that gets populated on the first launch of the firmware. The firmware is smart enough to detect an ‘empty’ flash and  initialize it automatically. I guess that’s what’s happening when you hit the ‘restore to factory defaults’ button in the web GUI.
+
+$ dd if=/dev/zero of=flash.img bs=1k count=128
+
+Note that the real flash actually contains more than just the configuration settings. It also holds the kernel, the ramdisk and the u-boot bootloader but we don’t care about those in the QEMU environment since we pass them to QEMU on the command line.
+
+Next we create a disk image that we will attach as a hard drive to QEMU. This is the equivalent to the real hard drive that you plug into the DNS-323. Run the following command to create an ‘empty’ 5GB image file.
+
+$ qemu-img create -f raw hda.img 5G
+
+Ideally, we should be able to launch QEMU now and let the DNS-323 firmware take care of initializing the hard drive image but for some reason that’s not working. I suspect that the QEMU hard drive emulation is not fully compatible with the DNS-323 firmware. One indication of this is that the firmware reports the serial number of the attached hard disk image as ‘sda’ even if a different serial number is specified on the QEMU command line. The firmware uses some obscure/unknown method to obtain the serial number. Maybe that’s the (or part of the) issue. The workaround is to initialize the hard disk image manually. For that, create a text file with the following content and name it sfdisk.input.
+
+63 1060227 82
+2088450 8397310 83
+0 0 0
+1060290 1028160 83
+y
+
+The first four lines contain the starting sector (first number), number of sectors (second number) and the partition type (third number, 82 = swap, 83 = Linux) for each of the four partitions that we need to create. The ‘y’ on the last line just tells sfdisk to write the changes to the disk (image).  Note that the above numbers are only valid for a 5GB disk image. If you created a different sized image, you need to modify the number of sectors of the second partition accordingly (second number in the second line). The formula is:
+
+#sectors = <image size in GB> * 1024 * 1024 * 1024 / 512 - 2088450
+
+Don’t ask about the weird partitioning scheme that D-Link chose. Beats me. Now create the partitions as follows.
+
+$ sfdisk -uS --force hda.img < sfdisk.input
+
+To finish the hard disk image initialization, we need to launch QEMU and run some more commands in the shell. Run QEMU as follows and make sure you use the QEMU binary, ramdisk and kernel image from the previous post.
+
+$ ./qemu-system-arm -m 128 -M versatilepb -nographic
+  -initrd Ramdisk.gz -kernel zImage -pflash flash.img
+  -drive file=hda.img,index=0,if=scsi,serial=sda
+  -append "root=/dev/ram console=ttyAMA0
+   mtdparts=phys_mapped_flash:64k(MTD1),64k(MTD2)"
+  -redir tcp:5080::80
+
+You should see the kernel boot messages scrolling across the terminal now. Specifically, look out for the following messages to verify that the hard drive and flash emulations are functioning and that the network is coming up. Refer to this link for the complete log of a first boot.
+
+Detection of attached hard drive image with 3 partitions:
+
+scsi0 : sym-2.2.1
+sym0: unknown interrupt(s) ignored, ISTAT=0x1 DSTAT=0x80 SIST=0x0
+  Vendor: QEMU      Model: QEMU HARDDISK     Rev: 0.15
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+ target0:0:0: tagged command queuing enabled, command queue depth 16.
+ target0:0:0: Beginning Domain Validation
+ target0:0:0: Domain Validation skipping write tests
+ target0:0:0: Ending Domain Validation
+SCSI device sda: 10485760 512-byte hdwr sectors (5369 MB)
+SCSI device sda: drive cache: write through
+SCSI device sda: 10485760 512-byte hdwr sectors (5369 MB)
+SCSI device sda: drive cache: write through
+ sda: sda1 sda2 sda4
+Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+
+Detection of attached flash image and mapping according to kernel command line options:
+
+physmap flash device: 4000000 at 34000000
+pflash_write: Unimplemented flash cmd sequence (offset 00000000,
+wcycle 0x0 cmd 0x0 value 0xf0f0)
+phys_mapped_flash: Found 1 x32 devices at 0x0 in 16-bit bank
+ Intel/Sharp Extended Query Table at 0x0031
+Using buffer write method
+2 cmdlinepart partitions found on MTD device phys_mapped_flash
+Creating 2 MTD partitions on "phys_mapped_flash":
+0x00000000-0x00010000 : "MTD1"
+0x00010000-0x00020000 : "MTD2"
+
+Network activated and coming up:
+
+** Activate Gigabit Interface
+egiga0: link up
+
+Once the firmware is fully booted, enter the magic number ’5784468′ to activate the shell.
+
+fancontrol.c: read_temper_degree(): IOCTL fail
+set fan speed to s
+fancontrol.c: read_temper_degree(): IOCTL fail
+kill: Usage: kill [-s sigspec | -signum | -sigspec] [pid | job]... or
+kill -l [exitstatus]
+fancontrol.c: read_temper_degree(): IOCTL fail
+fancontrol.c: read_temper_degree(): IOCTL fail
+fancontrol.c: read_temper_degree(): IOCTL fail
+fancontrol.c: read_temper_degree(): IOCTL fail
+fancontrol.c: read_temper_degree(): IOCTL fail
+5784468
+sh: can't access tty; job control turned off
+#
+
+The last step for initializing the hard drive image is to run a magic D-Link tool to configure the RAID volume and create the filesystems on the different partitions. In this example, we’re just using a single hard drive as an individual disk (no RAID or JBOD).
+
+# diskmgr --DevName=/dev/sda --DevSize=-1 --RaidStatus=0
+  --DiskMode=normal  --FileSystem=ext2 --Serial1=sda
+# mkswap /dev/sda1
+# mke2fs /dev/sda2
+# mke2fs /dev/sda4
+
+That’s it! Everything should be initialized now. Reboot QEMU and try to log into the DNS-323 website. To reboot, execute ‘poweroff’ in the QEMU shell, then press ‘CTRL-A x’ to terminate QEMU and restart it with the same command that you used previously.
+
+Once the system is up again, point your web browser at ‘http://localhost:5080′ and log in using the user name ‘admin’ with no password. Check the hard drive status on the ‘STATUS’ page, it should list a single hard drive (Model QEMU HARDDISK) with about 4GB of unused space.
+
+Next I need to figure out how to get SAMBA working through QEMU so that the hard disk image can actually be accessed from the outside.
+
+Enjoy!
