@@ -1,0 +1,547 @@
+./qemu-system-arm -m 128 -M versatilepb -nographic -pflash flash.img -initrd Ramdisk.gz -kernel zImage -append "root=/dev/ram console=ttyAMA0 mtdparts=phys_mapped_flash:64k(MTD1),64k(MTD2)" -drive file=hda.img,index=0,if=scsi,serial=sda -redir tcp:5080::80
+Uncompressing Linux.......................................................................................... done, booting the kernel.
+Linux version 2.6.14-dns323 (juergh@gollum) (gcc version 3.3.3) #1 Mon Sep 12 11:43:31 CEST 2011
+CPU: ARM926EJ-Sid(wb) [41069265] revision 5 (ARMv5TEJ)
+Machine: ARM-Versatile PB
+Memory policy: ECC disabled, Data cache writeback
+CPU0: D VIVT write-through cache
+CPU0: I cache: 4096 bytes, associativity 4, 32 byte lines, 32 sets
+CPU0: D cache: 65536 bytes, associativity 4, 32 byte lines, 512 sets
+Built 1 zonelists
+Kernel command line: root=/dev/ram console=ttyAMA0 mtdparts=phys_mapped_flash:64k(MTD1),64k(MTD2)
+PID hash table entries: 1024 (order: 10, 16384 bytes)
+Console: colour dummy device 80x30
+Dentry cache hash table entries: 32768 (order: 5, 131072 bytes)
+Inode-cache hash table entries: 16384 (order: 4, 65536 bytes)
+Memory: 128MB = 128MB total
+Memory: 121728KB available (2302K code, 464K data, 108K init)
+Mount-cache hash table entries: 512
+CPU: Testing write buffer coherency: ok
+checking if image is initramfs...it isn't (no cpio magic); looks like an initrd
+Freeing initrd memory: 5117K
+NET: Registered protocol family 16
+PCI core found (slot 11)
+PCI: bus0: Fast back to back transfers disabled
+map irq: slot 0, pin 1, devslot 12, irq: 27
+SCSI subsystem initialized
+NetWinder Floating Point Emulator V0.97 (double precision)
+VFS: Disk quotas dquot_6.5.1
+Dquot-cache hash table entries: 1024 (order 0, 4096 bytes)
+squashfs: version 3.3 (2007/10/31) Phillip Lougher
+squashfs: LZMA suppport for slax.org by jro
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+Initializing Cryptographic API
+Serial: AMBA PL011 UART driver
+ttyAMA0 at MMIO 0x101f1000 (irq = 12) is a AMBA/PL011
+ttyAMA1 at MMIO 0x101f2000 (irq = 13) is a AMBA/PL011
+ttyAMA2 at MMIO 0x101f3000 (irq = 14) is a AMBA/PL011
+ttyAMA3 at MMIO 0x10009000 (irq = 38) is a AMBA/PL011
+io scheduler noop registered
+io scheduler deadline registered
+RAMDISK driver initialized: 16 RAM disks of 10240K size 1024 blocksize
+loop: loaded (max 8 devices)
+smc91x.c: v1.1, sep 22 2004 by Nicolas Pitre <nico@cam.org>
+egiga0: SMC91C11xFD (rev 1) at c8922000 IRQ 25 [nowait]
+egiga0: Ethernet addr: 52:54:00:12:34:56
+PCI: enabling device 0000:00:0c.0 (0100 -> 0103)
+sym0: <895a> rev 0x0 at pci 0000:00:0c.0 irq 27
+sym0: No NVRAM, ID 7, Fast-40, LVD, parity checking
+sym0: SCSI BUS has been reset.
+scsi0 : sym-2.2.1
+sym0: unknown interrupt(s) ignored, ISTAT=0x1 DSTAT=0x80 SIST=0x0
+  Vendor: QEMU      Model: QEMU HARDDISK     Rev: 0.15
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+ target0:0:0: tagged command queuing enabled, command queue depth 16.
+ target0:0:0: Beginning Domain Validation
+ target0:0:0: Domain Validation skipping write tests
+ target0:0:0: Ending Domain Validation
+SCSI device sda: 10485760 512-byte hdwr sectors (5369 MB)
+SCSI device sda: drive cache: write through
+SCSI device sda: 10485760 512-byte hdwr sectors (5369 MB)
+SCSI device sda: drive cache: write through
+ sda: sda1 sda2 sda4
+Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 0
+physmap flash device: 4000000 at 34000000
+pflash_write: Unimplemented flash cmd sequence (offset 00000000, wcycle 0x0 cmd 0x0 value 0xf0f0)
+phys_mapped_flash: Found 1 x32 devices at 0x0 in 16-bit bank
+ Intel/Sharp Extended Query Table at 0x0031
+Using buffer write method
+2 cmdlinepart partitions found on MTD device phys_mapped_flash
+Creating 2 MTD partitions on "phys_mapped_flash":
+0x00000000-0x00010000 : "MTD1"
+0x00010000-0x00020000 : "MTD2"
+mice: PS/2 mouse device common for all mice
+md: linear personality registered as nr 1
+md: raid0 personality registered as nr 2
+md: raid1 personality registered as nr 3
+md: md driver 0.90.2 MAX_MD_DEVS=256, MD_SB_DISKS=27
+md: bitmap version 3.39
+device-mapper: 4.4.0-ioctl (2005-01-12) initialised: dm-devel@redhat.com
+NET: Registered protocol family 2
+input: AT Raw Set 2 keyboard on fpga:06
+input: ImExPS/2 Generic Explorer Mouse on fpga:07
+IP route cache hash table entries: 2048 (order: 1, 8192 bytes)
+TCP established hash table entries: 8192 (order: 3, 32768 bytes)
+TCP bind hash table entries: 8192 (order: 3, 32768 bytes)
+TCP: Hash tables configured (established 8192 bind 8192)
+TCP reno registered
+TCP bic registered
+NET: Registered protocol family 1
+NET: Registered protocol family 17
+md: Autodetecting RAID arrays.
+md: autorun ...
+md: ... autorun DONE.
+RAMDISK: Compressed image found at block 0
+VFS: Mounted root (ext2 filesystem) readonly.
+Freeing init memory: 108K
+init started:  BusyBox v1.00-pre1 (2009.05.07-06:36+0000) multi-call binary
+init started:  BusyBox v1.00-pre1 (2009.05.07-06:36+0000) multi-call binary
+Starting pid 257, console /dev/console: '/etc/rc.sh'
+** Mounting /etc/fstab
+VFS: Can't find a Minix or Minix V2 filesystem on device mtdblock0.
+mount: wrong fs type, bad option, bad superblock on /dev/mtdblock0,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+umount: proc: not mounted
+umount: proc: not mounted
+umount: /image.cfs: not mounted
+umount: /image.cfs: not mounted
+VFS: Can't find a Minix or Minix V2 filesystem on device mtdblock0.
+mount: wrong fs type, bad option, bad superblock on /dev/mtdblock0,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+umount: /dev/mtdblock0: not mounted
+Check MTD block device V2.06.12242009
+VFS: Can't find a Minix or Minix V2 filesystem on device mtdblock0.
+mount: wrong fs type, bad option, bad superblock on /dev/mtdblock0,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+MTDC: Mount MTD1 fail.
+VFS: Can't find a Minix or Minix V2 filesystem on device mtdblock1.
+mount: wrong fs type, bad option, bad superblock on /dev/mtdblock1,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+MTDC: Mount MTD2 fail.
+VFS: Can't find a Minix or Minix V2 filesystem on device mtdblock1.
+mount: wrong fs type, bad option, bad superblock on /dev/mtdblock1,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+MTDC: Mount MTD2 fail.
+VFS: Can't find a Minix or Minix V2 filesystem on device mtdblock0.
+mount: wrong fs type, bad option, bad superblock on /dev/mtdblock0,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+MTDC: Mount MTD1 fail.
+MTDC: Format MTD1 block.
+fsck.minix: bad magic number in super-block
+64 inodes
+64 blocks
+Firstdatazone=6 (6)
+Zonesize=1024
+Maxsize=268966912
+
+MTDC: Copy default files to MTD1.
+MTDC: Format MTD2 block.
+fsck.minix: bad magic number in super-block
+64 inodes
+64 blocks
+Firstdatazone=6 (6)
+Zonesize=1024
+Maxsize=268966912
+
+MTDC: Copy default files to MTD2.
+** copy mtd1 files
+cp: /sys/mtd1/firmwareupdate: No such file or directory
+cp: /sys/mtd1/raidtab: No such file or directory
+cp: /sys/mtd1/raidtab2web: No such file or directory
+cp: /sys/mtd1/ftp_tbl: No such file or directory
+cp: /sys/mtd1/codepage: No such file or directory
+cp: /sys/mtd1/hd_magic_num: No such file or directory
+cp: /sys/mtd1/upnp_serialnum.conf: No such file or directory
+cp: /sys/mtd1/onedisk: No such file or directory
+cp: /sys/mtd1/MountError: No such file or directory
+cp: /sys/mtd1/mediaserver.udn: No such file or directory
+cp: /sys/mtd1/upnpav_portnumber: No such file or directory
+cp: /sys/mtd1/web_NToR1: No such file or directory
+cp: /sys/mtd1/config.xml: No such file or directory
+cp: /sys/mtd1/system.log: No such file or directory
+cp: /sys/mtd1/dsk_mapping: No such file or directory
+rm: cannot remove `/sys/mtd1/udhcpd.leases': No such file or directory
+mv: /sys/mtd1/firmwareupdate: No such file or directory
+mv: /sys/mtd1/restore: No such file or directory
+mv: /sys/mtd1/format_ok: No such file or directory
+mv: /sys/mtd1/pls_sync: No such file or directory
+mv: /sys/mtd1/pls_chmod_a2: No such file or directory
+mv: /sys/mtd1/pls_chmod_b2: No such file or directory
+mv: /sys/mtd1/spare_dsk: No such file or directory
+mv: /sys/mtd1/std_raid1: No such file or directory
+mv: /sys/mtd1/old_prescan_version: No such file or directory
+cp: /sys/mtd1/ez-ipupdate.cache: No such file or directory
+cp: /sys/mtd1/ftpgroup: No such file or directory
+mv: unable to rename `/tmp/hd_magic_num': No such file or directory
+** link lib **
+** link web **
+** link /usr/bin **
+** link /usr/sbin **
+sd_mod: version magic '2.6.12.6-arm1 ARMv5 gcc-3.3' should be '2.6.14-dns323 ARMv5 gcc-3.3'
+insmod: error inserting '/lib/modules/sd_mod.ko': -1 Invalid module format
+usblp: version magic '2.6.12.6-arm1 ARMv5 gcc-3.3' should be '2.6.14-dns323 ARMv5 gcc-3.3'
+insmod: error inserting '/lib/modules/usblp.ko': -1 Invalid module format
+** link /usr/local/LPRng **
+cp: /sys/crfs/default/server-key-nopassword.pem: No such file or directory
+    mode:         16384
+-o  offset:       0
+-f  frequency:    0
+    maxerror:     16384000
+    esterror:     16384000
+    status:       64 ( UNSYNC )
+-p  timeconstant: 2
+    precision:    1
+    tolerance:    33554432
+-t  tick:         9960
+    time.tv_sec:  65
+    time.tv_usec: 678864
+    return value: 5 (clock not synchronized)
+<rtc>: getRTC time= 0/0/0 0:8:216
+<fan script start>
+** set loopback interface
+read mac from /dev/mtdblock4
+open mtdblock device failed!
+Empty MAC address in u-boot, set defulat MAC addrss.
+MAC = 00:00:E8:1A:2B:3C
+** Activate Gigabit Interface
+egiga0: link up
+** execute rc.init.sh
+hostname=[dlink-1A2B3C]
+SIOCADDRT: Network is unreachable
+Setting hostname .... dlink-1A2B3C
+Starting DHCP client ....
+*****8192.168.0.32
+info, udhcpc (v0.9.9-pre) started
+get IP = [NONE SET]
+[write_ssl start] 
+[ write_ssl ]now ip = 0.0.0.0,7 
+ip is different ,return 
+debug, Sending discover...
+debug, Sending select for 10.0.2.15...
+info, Lease of 10.0.2.15 obtained, lease time 86400
+deleting routers
+SIOCDELRT: No such process
+adding dns 10.0.2.3
+[write_ssl start] 
+get IP = 10.0.2.15
+*** Starting fdisk...
+fdisk /dev/sda p 1 
+partitions = 4, sys_ind = 0x82 
+exit status 0 
+success 
+Setting up swapspace version 1, size = 542830592 bytes
+sibIP = 10.0.2.15 9
+certsIP = 192.168.0.32
+  13
+openssl_cmd = /web/openssl req -subj '/C=US/ST=California/L=Fountain Valley/CN=10.0.2.15'		-x509 -newkey rsa:2048 -days 1024 -keyout /web/server-key.pem -out /web/server-cert.pem 
+Adding 530104k swap on /dev/sda1.  Priority:-1 extents:1 across:530104k
+hd verify v1.23.10072009
+******* hd_verify start *********
+Can not find raid table from hard disk hidden partition
+cp tmp raid table
+Generating a 2048 bit RSA private key
+.Raid Table Parser version V1.12_07232009
+Assemble the previously created Raid array.
+/tmp/spare_dsk not exist!!!
+/tmp/std_raid1 not exist!!!
+.mdadm: cannot open /dev/sdb2: No such device or address
+mdadm: cannot open /dev/sda3: No such device or address
+mdadm: cannot open /dev/sdb3: No such device or address
+The size of /tmp/mdadm.tmp is 0
+mdadm: /dev/md0 not identified in config file.
+Raid Level Parser version v1.01
+Memory allocation failure or no active mdx!!!
+mdadm: cannot open /dev/sdb2: No such device or address
+mdadm: cannot open /dev/sda3: No such device or address
+mdadm: cannot open /dev/sdb3: No such device or address
+The size of /tmp/mdadm.tmp is 0
+mdadm: /dev/md1 not identified in config file.
+Raid Level Parser version v1.01
+Memory allocation failure or no active mdx!!!
+Raid Table Parser version V1.12_07232009
+Assemble the previously created Raid array.
+/tmp/spare_dsk not exist!!!
+/tmp/std_raid1 not exist!!!
+mdadm: cannot open /dev/sdb2: No such device or address
+mdadm: cannot open /dev/sda3: No such device or address
+mdadm: cannot open /dev/sdb3: No such device or address
+The size of /tmp/mdadm.tmp is 0
+mdadm: /dev/md0 not identified in config file.
+mdadm: cannot open /dev/sdb2: No such device or address
+mdadm: cannot open /dev/sda3: No such device or address
+mdadm: cannot open /dev/sdb3: No such device or address
+The size of /tmp/mdadm.tmp is 0
+mdadm: /dev/md0 not identified in config file.
+Raid Level Parser version v1.01
+Memory allocation failure or no active mdx!!!
+mdadm: cannot open /dev/sdb2: No such device or address
+mdadm: cannot open /dev/sda3: No such device or address
+mdadm: cannot open /dev/sdb3: No such device or address
+The size of /tmp/mdadm.tmp is 0
+mdadm: /dev/md1 not identified in config file.
+.mdadm: cannot open /dev/sdb2: No such device or address
+mdadm: cannot open /dev/sda3: No such device or address
+mdadm: cannot open /dev/sdb3: No such device or address
+The size of /tmp/mdadm.tmp is 0
+mdadm: /dev/md1 not identified in config file.
+Raid Level Parser version v1.01
+Memory allocation failure or no active mdx!!!
+*** Starting fdisk...
+fdisk /dev/sda p 1 
+partitions = 4, sys_ind = 0x82 
+exit status 0 
+success 
+Setting up swapspace version 1, size = 542830592 bytes
+swapon: /dev/sda1: Device or resource busy
+..+grep: /etc/codepage: No such file or directory
++grep: /tmp/onedisk: No such file or directory
++
+..VFS: Can't find ext3 filesystem on dev sda2.
+mount: wrong fs type, bad option, bad superblock on /dev/sda2,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+VFS: Can't find an ext2 filesystem on dev sda2.
+mount: wrong fs type, bad option, bad superblock on /dev/sda2,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+.VFS: Can't find ext3 filesystem on dev sda2.
+mount: wrong fs type, bad option, bad superblock on /dev/sda2,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+.VFS: Can't find an ext2 filesystem on dev sda2.
+mount: wrong fs type, bad option, bad superblock on /dev/sda2,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+grep: /tmp/onedisk: No such file or directory
+..+++
+writing new private key to '/web/server-key.pem'
+-----
+writing RSA key
+CP_SSL_MTD1
+md: md0 stopped.
+mdadm: stopped /dev/md0
+md: md1 stopped.
+mdadm: stopped /dev/md1
+cp: unable to open `/mnt/HD_a2/.systemfile/.': No such file or directory
+cp: unable to open `/mnt/HD_a2/.systemfile/.': No such file or directory
+cp: unable to open `/mnt/HD_a2/.systemfile/.': No such file or directory
+cp: unable to open `/mnt/HD_a2/.systemfile/.': No such file or directory
+cp: unable to open `/mnt/HD_a2/.systemfile/.': No such file or directory
+Mount Normal
+grep: /etc/codepage: No such file or directory
+grep: /tmp/onedisk: No such file or directory
+VFS: Can't find ext3 filesystem on dev sda2.
+mount: wrong fs type, bad option, bad superblock on /dev/sda2,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+VFS: Can't find an ext2 filesystem on dev sda2.
+mount: wrong fs type, bad option, bad superblock on /dev/sda2,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+VFS: Can't find ext3 filesystem on dev sda2.
+mount: wrong fs type, bad option, bad superblock on /dev/sda2,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+VFS: Can't find an ext2 filesystem on dev sda2.
+mount: wrong fs type, bad option, bad superblock on /dev/sda2,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+grep: /tmp/onedisk: No such file or directory
+grep: /etc/codepage: No such file or directory
+VFS: Can't find ext3 filesystem on dev sda4.
+mount: wrong fs type, bad option, bad superblock on /dev/sda4,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+VFS: Can't find an ext2 filesystem on dev sda4.
+mount: wrong fs type, bad option, bad superblock on /dev/sda4,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+Normal mode only has one disk
+NORMAL mode
+mount device /dev/sda2 fail
+hd_mgaic_num1 = 0
+error disk = 0 0
+umount: /mnt/HD_a*: not found
+grep: /etc/shared_name: No such file or directory
+Refresh Shared Name Table version v1.04
+/etc/shared_name failed to open.!!!
+Refresh Shared Name Table version v1.04
+/etc/shared_name failed to open.!!!
+Refresh Shared Name Table version v1.04
+/etc/shared_name failed to open.!!!
+Refresh Shared Name Table version v1.04
+/etc/shared_name failed to open.!!!
+Refresh Shared Name Table version v1.04
+/etc/shared_name failed to open.!!!
+Refresh Shared Name Table version v1.04
+/etc/shared_name failed to open.!!!
+Refresh Shared Name Table version v1.04
+/etc/shared_name failed to open.!!!
+Refresh Shared Name Table version v1.04
+/etc/shared_name failed to open.!!!
+Refresh Shared Name Table version v1.04
+/etc/shared_name failed to open.!!!
+Refresh Shared Name Table version v1.04
+/etc/shared_name failed to open.!!!
+Refresh Shared Name Table version v1.04
+/etc/shared_name failed to open.!!!
+Refresh Shared Name Table version v1.04
+/etc/shared_name failed to open.!!!
+Refresh Shared Name Table version v1.04
+/etc/shared_name failed to open.!!!
+Refresh Shared Name Table version v1.04
+/etc/shared_name failed to open.!!!
+Refresh Shared Name Table version v1.04
+/etc/shared_name failed to open.!!!
+Refresh Shared Name Table version v1.04
+/etc/shared_name failed to open.!!!
+Refresh Shared Name Table version v1.04
+/etc/shared_name failed to open.!!!
+*************** hd_verify end ******************
+Set Timezone=(GMT-08:00) Pacific Time(US & Canada); Tijuana
+1.Set Date & time ...(command: sntp -r ntp1.dlink.com &)
+get IP = 10.0.2.15
+sntp: using NTP server ntp1.dlink.com (74.80.219.11)
+NTP Server connected successfully!!!
+System time: 2011/9/20 Tue 10:29:19
+Sep 20 10:29:27 crond[1391]: crond 2.3.2 dillon, started, log level 8
+
+check button V2.73.01122010
+swapon
+grep: /etc/codepage: No such file or directory
+grep: /tmp/onedisk: No such file or directory
+VFS: Can't find ext3 filesystem on dev sda2.
+mount: wrong fs type, bad option, bad superblock on /dev/sda2,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+VFS: Can't find an ext2 filesystem on dev sda2.
+mount: wrong fs type, bad option, bad superblock on /dev/sda2,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+VFS: Can't find ext3 filesystem on dev sda2.
+mount: wrong fs type, bad option, bad superblock on /dev/sda2,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+VFS: Can't find an ext2 filesystem on dev sda2.
+mount: wrong fs type, bad option, bad superblock on /dev/sda2,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+grep: /tmp/onedisk: No such file or directory
+grep: /etc/codepage: No such file or directory
+VFS: Can't find ext3 filesystem on dev sda4.
+mount: wrong fs type, bad option, bad superblock on /dev/sda4,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+VFS: Can't find an ext2 filesystem on dev sda4.
+mount: wrong fs type, bad option, bad superblock on /dev/sda4,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+1.09(1.70.0210.2010)
+02/10/2010
+mfg_search
+/web/swap_a file exist(ext2)
+** Get MAC Addr
+Old BT binanry
+does not exist directory
+/usr/sbin/start_bt: ./btdog: No such file or directory
+/etc/shared_name: No such file or directory
+Sep 20 10:29:35 crond[1622]: crond 2.3.2 dillon, started, log level 8
+
+rm: cannot remove `/tmp/set_ddns_done': No such file or directory
+rm: cannot remove `/tmp/set_ddns_error': No such file or directory
+Fan:Auto(Off/Low/High)
+set fan speed to h
+mount: mount point /proc/bus/usb does not exist
+format error
+op_server 3 3 3 &
+language=ENGLISH
+This may not a UPS device , please check it
+Starting pid 1648, console /dev/console: '/bin/sh'
+
+
+BusyBox v1.00-pre1 (2009.05.07-06:36+0000) Built-in shell (ash)
+Enter 'help' for a list of built-in commands.
+
+op_server v2.01.06012006
+Sep 20 10:29:36 crond[1658]: crond 2.3.2 dillon, started, log level 8
+
+Sep 20 10:29:36 crond[1664]: crond 2.3.2 dillon, started, log level 8
+
+Sep 20 10:29:37 crond[1668]: crond 2.3.2 dillon, started, log level 8
+
+rm: cannot remove `/etc/QuotaStart': No such file or directory
+mkdir: Cannot create directory `/mnt/HD_a2/.lpd': No such file or directory
+chmod: /mnt/HD_a2/.lpd: No such file or directory
+kill process
+$Shutting down SMB services: 
+$Shutting down NMB services: 
+kill: Usage: kill [-s sigspec | -signum | -sigspec] [pid | job]... or
+kill -l [exitstatus]
+kill: Usage: kill [-s sigspec | -signum | -sigspec] [pid | job]... or
+kill -l [exitstatus]
+kill: Usage: kill [-s sigspec | -signum | -sigspec] [pid | job]... or
+kill -l [exitstatus]
+
+Module IPC SERVER Version:(1.00.20081006)
+
+Sep 20 10:29:45 crond[1795]: crond 2.3.2 dillon, started, log level 8
+
+empty log
+fancontrol.c: read_temper_degree(): IOCTL fail
+set fan speed to s
+fancontrol.c: read_temper_degree(): IOCTL fail
+fancontrol.c: read_temper_degree(): IOCTL fail
+5784468
+sh: can't access tty; job control turned off
+# 
